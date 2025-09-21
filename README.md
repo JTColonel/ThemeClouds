@@ -13,11 +13,7 @@ A Python package for extracting and analyzing themes from documents using Large 
 
 ## Installation
 
-```bash
-pip install theme-extractor
-```
-
-Or install from source:
+Install from source:
 
 ```bash
 git clone <repository-url>
@@ -28,11 +24,11 @@ pip install -e .
 ## Quick Start
 
 ```python
-from theme_extractor import ThemeExtractor
+from themeclouds import ThemeExtractor
 import os
 
-# Set your OpenAI API key
-os.environ["OPENAI_API_KEY"] = "your-api-key-here"
+# Download GGUF of your LLM of choice
+llm_path = "/your/llm/path"
 
 # Sample documents
 documents = [
@@ -42,7 +38,7 @@ documents = [
 ]
 
 # Initialize and process
-extractor = ThemeExtractor()
+extractor = ThemeExtractor(llm_path=llm_path)
 theme_counts = extractor.process_documents(documents)
 
 # Generate visualizations
@@ -59,7 +55,7 @@ extractor.save_results("results/analysis.json")
 Create a `prompt_config.json` file to customize the prompts:
 
 ```python
-from theme_extractor.utils import create_sample_config
+from themeclouds.utils import create_sample_config
 
 # Generate sample configuration file
 create_sample_config("my_prompts.json")
@@ -71,8 +67,8 @@ extractor = ThemeExtractor(prompt_config_path="my_prompts.json")
 ### Custom LLM Settings
 
 ```python
-from theme_extractor import ThemeExtractor
-from theme_extractor.llm_interface import OpenAIInterface
+from themeclouds import ThemeExtractor
+from themeclouds.llm_interface import OpenAIInterface
 
 # Custom OpenAI settings
 llm = OpenAIInterface(
@@ -100,7 +96,7 @@ extractor = ThemeExtractor(
 ## Package Structure
 
 ```
-theme_extractor/
+themeclouds/
 ├── __init__.py              # Package initialization
 ├── core.py                  # Main ThemeExtractor class
 ├── llm_interface.py         # LLM communication interfaces
@@ -115,7 +111,7 @@ theme_extractor/
 ### Processing Large Document Collections
 
 ```python
-from theme_extractor.utils import load_documents_from_file, preprocess_text
+from themeclouds.utils import load_documents_from_file, preprocess_text
 
 # Load documents from file
 documents = load_documents_from_file("my_documents.txt")
@@ -133,7 +129,7 @@ results = extractor.process_documents(processed_docs)
 Extend the `LLMInterface` class to add support for other LLM providers:
 
 ```python
-from theme_extractor.llm_interface import LLMInterface
+from themeclouds.llm_interface import LLMInterface
 
 class CustomLLMInterface(LLMInterface):
     def generate_response(self, system_prompt: str, user_prompt: str) -> str:
