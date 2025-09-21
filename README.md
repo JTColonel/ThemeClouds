@@ -17,7 +17,7 @@ Install from source:
 
 ```bash
 git clone <repository-url>
-cd theme-extractor
+cd ThemeClouds
 pip install -e .
 ```
 
