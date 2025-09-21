@@ -64,22 +64,6 @@ create_sample_config("my_prompts.json")
 extractor = ThemeExtractor(prompt_config_path="my_prompts.json")
 ```
 
-### Custom LLM Settings
-
-```python
-from themeclouds import ThemeExtractor
-from themeclouds.llm_interface import OpenAIInterface
-
-# Custom OpenAI settings
-llm = OpenAIInterface(
-    model="gpt-4",
-    max_retries=5,
-    delay_between_calls=2.0
-)
-
-extractor = ThemeExtractor(llm_interface=llm)
-```
-
 ### Visualization Settings
 
 ```python
@@ -186,8 +170,7 @@ Creates visualizations from theme frequency data.
 ## Requirements
 
 - Python 3.8+
-- OpenAI API key (for default LLM interface)
-- Required packages: `openai`, `wordcloud`, `matplotlib`
+- Required packages: `llama_cpp_python`, `wordcloud`, `matplotlib`
 
 ## Contributing
 
