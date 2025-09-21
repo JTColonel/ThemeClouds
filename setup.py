@@ -26,7 +26,7 @@ setup(
     ],
     python_requires=">=3.8",
     install_requires=[
-        "openai>=1.0.0",
+        "llama-cpp-python>=0.3.16",
         "wordcloud>=1.9.0",
         "matplotlib>=3.5.0",
     ],

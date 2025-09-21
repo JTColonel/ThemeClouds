@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from typing import List, Optional
-import openai
+from llama_cpp import Llama
 import time
 
 class LLMInterface(ABC):
@@ -13,42 +13,68 @@ class LLMInterface(ABC):
         """Generate a response from the LLM."""
         pass
 
-class OpenAIInterface(LLMInterface):
-    """OpenAI API interface."""
+
+class LlamaCppInterface(LLMInterface):
+    """Llama.cpp interface for local GGUF models."""
     
-    def __init__(self, api_key: str = None, model: str = "gpt-3.5-turbo", 
-                 max_retries: int = 3, delay_between_calls: float = 1.0):
+    def __init__(self, llm_path: str, max_retries: int = 3, 
+                 delay_between_calls: float = 0.1, n_ctx: int = 4096,
+                 temperature: float = 0.3, max_tokens: int = 1000,
+                 n_threads: int = None, verbose: bool = False):
         """
-        Initialize OpenAI interface.
+        Initialize Llama.cpp interface.
         
         Args:
-            api_key: OpenAI API key (if None, expects OPENAI_API_KEY env var)
-            model: Model to use
+            llm_path: Path to the GGUF model file
             max_retries: Maximum number of retry attempts
-            delay_between_calls: Delay between API calls to avoid rate limiting
+            delay_between_calls: Delay between calls (usually shorter for local models)
+            n_ctx: Context window size
+            temperature: Sampling temperature
+            max_tokens: Maximum tokens to generate
+            n_threads: Number of threads to use (None for auto)
+            verbose: Whether to enable verbose logging
         """
-        if api_key:
-            openai.api_key = api_key
-        self.model = model
+        
+        self.llm_path = llm_path
         self.max_retries = max_retries
         self.delay_between_calls = delay_between_calls
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        
+        # Initialize the Llama model
+        self.llm = Llama(
+            model_path=llm_path,
+            n_ctx=n_ctx,
+            n_threads=n_threads,
+            verbose=verbose
+        )
     
     def generate_response(self, system_prompt: str, user_prompt: str) -> str:
-        """Generate response using OpenAI API."""
+        """Generate response using Llama.cpp."""
+        # Format for Llama 3.3 Instruct
+        formatted_prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+{system_prompt}<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+{user_prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+"""
+        
         for attempt in range(self.max_retries):
             try:
-                response = openai.chat.completions.create(
-                    model=self.model,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt}
-                    ],
-                    temperature=0.3,
-                    max_tokens=1000
+                response = self.llm(
+                    formatted_prompt,
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
+                    stop=["<|eot_id|>", "<|end_of_text|>"],
+                    echo=False
                 )
                 
                 time.sleep(self.delay_between_calls)
-                return response.choices[0].message.content.strip()
+                
+                # Extract the generated text
+                generated_text = response['choices'][0]['text'].strip()
+                return generated_text
                 
             except Exception as e:
                 if attempt == self.max_retries - 1:
@@ -57,16 +83,3 @@ class OpenAIInterface(LLMInterface):
         
         return ""
 
-class ClaudeInterface(LLMInterface):
-    """Anthropic Claude interface (placeholder - implement based on your API access)."""
-    
-    def __init__(self, api_key: str = None, model: str = "claude-3-sonnet-20240229"):
-        """Initialize Claude interface."""
-        self.api_key = api_key
-        self.model = model
-    
-    def generate_response(self, system_prompt: str, user_prompt: str) -> str:
-        """Generate response using Claude API."""
-        # Implement based on Anthropic's API
-        # This is a placeholder
-        raise NotImplementedError("Claude interface needs to be implemented with actual API calls")

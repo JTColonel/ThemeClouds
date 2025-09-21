@@ -1,7 +1,7 @@
 """Main ThemeExtractor class that orchestrates the entire process."""
 
 from typing import List, Dict, Optional
-from .llm_interface import LLMInterface, OpenAIInterface
+from .llm_interface import LLMInterface
 from .theme_analyzer import ThemeAnalyzer
 from .visualizer import WordCloudGenerator
 from .prompt_config import PromptConfig
@@ -22,7 +22,7 @@ class ThemeExtractor:
             wordcloud_config: Configuration for word cloud generation
         """
         # Initialize components
-        self.llm = llm_interface or OpenAIInterface()
+        self.llm = llm_interface 
         self.prompt_config = PromptConfig(prompt_config_path)
         self.analyzer = ThemeAnalyzer(self.llm, self.prompt_config)
         

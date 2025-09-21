@@ -1,0 +1,9 @@
+openai>=1.0.0
+wordcloud>=1.9.0
+matplotlib>=3.5.0
+
+[dev]
+pytest>=6.0.0
+black>=22.0.0
+flake8>=4.0.0
+mypy>=0.950
